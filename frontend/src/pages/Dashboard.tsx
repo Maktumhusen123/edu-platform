@@ -1,11 +1,15 @@
-import { Container, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 
 const Dashboard = () => {
   return (
-    <Container>
-      <Typography variant="h4">Welcome to Dashboard</Typography>
-      <Typography>This is your main dashboard page.</Typography>
-    </Container>
+    <>
+      <Typography variant="h3" fontWeight="bold" gutterBottom color="#333">
+        Welcome to Your Dashboard
+      </Typography>
+      <Typography variant="body1" color="textSecondary">
+        Manage your courses, profile, and settings from here.
+      </Typography>
+    </>
   );
 };
 

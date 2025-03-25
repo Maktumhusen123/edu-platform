@@ -5,7 +5,6 @@ interface Props {
   mobileOpen: boolean;
   setMobileOpen: (open: boolean) => void;
   role: string | null;
-  handleLogout: () => void;
   navLinks: { label: string; to: string }[];
   roleLinks: { [key: string]: { label: string; to: string }[] };
 }
@@ -14,7 +13,6 @@ const MobileNav = ({
   mobileOpen,
   setMobileOpen,
   role,
-  handleLogout,
   navLinks,
   roleLinks,
 }: Props) => {
@@ -48,7 +46,7 @@ const MobileNav = ({
               <ListItemText primary={link.label} />
             </ListItem>
           ))}
-        {!role ? (
+        {!role && (
           <>
             <ListItem
               component={Link}
@@ -67,16 +65,6 @@ const MobileNav = ({
               <ListItemText primary="Signup" />
             </ListItem>
           </>
-        ) : (
-          <ListItem
-            onClick={() => {
-              handleLogout();
-              setMobileOpen(false);
-            }}
-            sx={{ cursor: "pointer" }}
-          >
-            <ListItemText primary="Logout" />
-          </ListItem>
         )}
       </List>
     </Drawer>

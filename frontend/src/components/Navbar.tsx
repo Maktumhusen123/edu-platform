@@ -50,13 +50,8 @@ const Navbar = () => {
             Learn with Maktum
           </Typography>
 
-          <DesktopNav
-            role={role}
-            handleLogout={handleLogout}
-            navLinks={navLinks}
-            roleLinks={roleLinks}
-          />
-          <ProfileMenu handleLogout={handleLogout} role={role} />
+          <DesktopNav role={role} navLinks={navLinks} roleLinks={roleLinks} />
+          <ProfileMenu role={role} handleLogout={handleLogout} />
 
           {/* Mobile Menu Button */}
           <IconButton
@@ -74,7 +69,6 @@ const Navbar = () => {
         mobileOpen={mobileOpen}
         setMobileOpen={setMobileOpen}
         role={role}
-        handleLogout={handleLogout}
         navLinks={navLinks}
         roleLinks={roleLinks}
       />
