@@ -6,7 +6,7 @@ const courseSchema = new mongoose.Schema(
     description: { type: String, required: true, trim: true },
     instructor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Instructor",
+      ref: "User", // Change "Instructor" to "User"
       required: true,
     },
     price: { type: Number, default: 0 }, // Free or Paid Courses

@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const Instructor = require("../models/Instructor");
+const User = require("../models/User"); // Import the unified User model
 
 // ✅ Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
@@ -13,12 +13,17 @@ const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+    console.log("Decoded JWT:", decoded); // Log decoded JWT to check structure
+
     req.user = decoded; // Attach decoded user data to request
     next(); // Proceed to next middleware or controller
   } catch (error) {
+    console.log("JWT Error:", error); // Log error for debugging
     res.status(403).json({ message: "Invalid or expired token" });
   }
 };
+
+module.exports = { verifyToken };
 
 // ✅ Middleware for role-based access control
 const authorizeRoles = (...roles) => {
@@ -32,13 +37,16 @@ const authorizeRoles = (...roles) => {
   };
 };
 
+// ✅ Middleware to check if instructor is approved
 const isApprovedInstructor = async (req, res, next) => {
   if (req.user.role !== "instructor") {
-    return res.status(403).json({ message: "Access denied" });
+    return res
+      .status(403)
+      .json({ message: "Access denied. Not an instructor." });
   }
 
-  // ✅ Fetch instructor from DB
-  const instructor = await Instructor.findById(req.user.id);
+  // ✅ Fetch user from DB (since all roles are in User model now)
+  const instructor = await User.findById(req.user.id);
   if (!instructor || instructor.status !== "approved") {
     return res
       .status(403)

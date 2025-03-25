@@ -34,7 +34,7 @@ router.post(
 
 // Publicly accessible routes
 router.get("/get-lessons", getAllLessons);
-router.get("/get-lesson/:id", getLessonById);
+router.get("/get-lesson /:id", getLessonById);
 
 // ✅ Only instructors can update lessons
 router.put(

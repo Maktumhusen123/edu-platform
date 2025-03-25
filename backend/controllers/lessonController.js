@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const Lesson = require("../models/Lessons");
+const { validationResult } = require("express-validator"); // For validation
 
 // Helper function to delete video file
 const deleteVideoFile = (videoPath) => {
@@ -15,6 +16,14 @@ const deleteVideoFile = (videoPath) => {
 // Create a new lesson
 exports.createLesson = async (req, res) => {
   try {
+    // Validate incoming data (e.g., title and content)
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res
+        .status(400)
+        .json({ message: "Validation failed", errors: errors.array() });
+    }
+
     const { title, content, course } = req.body;
 
     const newLesson = new Lesson({
@@ -47,9 +56,16 @@ exports.getAllLessons = async (req, res) => {
   try {
     let { page, limit, sort, course, title } = req.query;
 
-    // Default values
-    page = parseInt(page) || 1; // Default page = 1
-    limit = parseInt(limit) || 10; // Default limit = 10 lessons per page
+    // Validate and sanitize pagination parameters
+    page = parseInt(page) || 1; // Default to 1 if not specified
+    limit = parseInt(limit) || 10; // Default to 10 if not specified
+
+    if (page <= 0 || limit <= 0) {
+      return res
+        .status(400)
+        .json({ message: "Page and limit must be positive numbers" });
+    }
+
     const skip = (page - 1) * limit;
 
     // Build query object for filtering

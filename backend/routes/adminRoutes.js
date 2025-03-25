@@ -6,14 +6,13 @@ const {
 } = require("../controllers/adminController");
 
 const express = require("express");
-const { isAdmin } = require("../middleware/authMiddleware");
 const { verifyToken, authorizeRoles } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
 // ✅ Admin Dashboard
 router.get(
-  "/dashboard",
+  "/admin-dashboard",
   verifyToken,
   authorizeRoles("admin"),
   getAdminDashboard

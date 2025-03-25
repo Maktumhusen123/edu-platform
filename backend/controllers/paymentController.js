@@ -1,6 +1,6 @@
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
-const Student = require("../models/Student");
+const Student = require("../models/User");
 const Course = require("../models/Course");
 
 // ✅ Initialize Razorpay

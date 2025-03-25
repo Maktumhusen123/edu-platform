@@ -1,21 +1,39 @@
 const Enrollment = require("../models/Enrollment");
 const Course = require("../models/Course");
+const User = require("../models/User"); // Use the unified User model
 
-// 🔹 Enroll in a course
+// 🔹 Enroll in a course (Only for students)
 exports.enrollInCourse = async (req, res) => {
   try {
-    const { student, course } = req.body;
+    const student = req.user.id; // Use authenticated user's ID (assumed student)
+    const { courseId } = req.body; // Get courseId from body
+
+    // Check if the course exists
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    // Check if the user is a student
+    if (req.user.role !== "student") {
+      return res
+        .status(403)
+        .json({ message: "Only students can enroll in courses" });
+    }
 
     // Check if enrollment already exists
-    const existingEnrollment = await Enrollment.findOne({ student, course });
+    const existingEnrollment = await Enrollment.findOne({
+      student,
+      course: courseId,
+    });
     if (existingEnrollment) {
       return res
         .status(400)
         .json({ message: "Already enrolled in this course" });
     }
 
-    // Create new enrollment
-    const newEnrollment = new Enrollment({ student, course });
+    // Create a new enrollment
+    const newEnrollment = new Enrollment({ student, course: courseId });
     await newEnrollment.save();
 
     res.status(201).json({ message: "Enrolled successfully", newEnrollment });

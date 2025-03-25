@@ -1,17 +1,23 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
-const Student = require("../models/Student");
-const Instructor = require("../models/Instructor");
-const Admin = require("../models/Admin");
+const User = require("../models/User");
 
 // Generate JWT Token
+// Generate JWT Token
 const generateToken = (user) => {
-  return jwt.sign(
-    { id: user._id.toString(), role: user.role, status: user.status },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
-  );
+  // If user is an instructor, include the status field in the token
+  const tokenPayload = {
+    id: user._id.toString(),
+    role: user.role,
+  };
+
+  // Include status only for instructors
+  if (user.role === "instructor") {
+    tokenPayload.status = user.status;
+  }
+
+  return jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
 // ✅ User Signup
@@ -24,47 +30,45 @@ exports.signup = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
 
   try {
-    let userModel;
-    let additionalFields = {};
-
-    // Check user role & model
-    if (role === "student") {
-      userModel = Student;
-    } else if (role === "instructor") {
-      userModel = Instructor;
-      additionalFields.status = "pending"; // Mark instructors as pending
-    } else if (role === "admin") {
-      return res
-        .status(403)
-        .json({ message: "Admin accounts cannot be created via signup" });
-    } else {
+    // Check if role is valid
+    if (!["student", "instructor", "admin"].includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
 
     // Check if user already exists
-    const existingUser = await userModel.findOne({ email });
+    const existingUser = await User.findOne({ email });
     if (existingUser)
       return res.status(400).json({ message: "User already exists" });
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Additional fields for instructor
+    let additionalFields = {};
+    if (role === "instructor") {
+      additionalFields.status = "pending"; // Set instructor status to pending
+    }
+
     // Create new user
-    const newUser = await userModel.create({
+    const newUser = new User({
       name,
       email,
       password: hashedPassword,
-      ...additionalFields, // Add status field for instructors
+      role,
+      ...additionalFields, // Add role-specific fields like status for instructors
     });
 
-    // ✅ If instructor, notify them of pending approval
+    // Save the user
+    await newUser.save();
+
+    // If instructor, notify of pending approval
     if (role === "instructor") {
       return res
         .status(201)
         .json({ message: "Signup successful. Awaiting admin approval." });
     }
 
-    // ✅ For students, generate token & respond
+    // For students and admins, generate token & respond
     const token = generateToken(newUser);
     res.status(201).json({
       message: "Signup successful",
@@ -78,22 +82,15 @@ exports.signup = async (req, res) => {
 
 // ✅ User Login
 exports.login = async (req, res) => {
-  const { email, password, role } = req.body;
+  const { email, password } = req.body;
 
   try {
-    let userModel;
-
-    if (role === "student") userModel = Student;
-    else if (role === "instructor") userModel = Instructor;
-    else if (role === "admin") userModel = Admin;
-    else return res.status(400).json({ message: "Invalid role" });
-
-    // Find user
-    const user = await userModel.findOne({ email });
+    // Find user by email (no need to check for role here)
+    const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
-    // ✅ Prevent login for pending instructors
-    if (role === "instructor" && (!user.status || user.status === "pending")) {
+    // Prevent login for pending instructors
+    if (user.role === "instructor" && user.status === "pending") {
       return res.status(403).json({
         message:
           "Your account is pending approval. Please wait for admin approval.",
@@ -110,21 +107,28 @@ exports.login = async (req, res) => {
 
     res.status(200).json({
       message: "Login successful",
-      token,
-      user: { id: user._id, name: user.name, email, role },
+      token, // Send the token
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role, // Include role from the database
+      },
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Server error", error });
   }
 };
 
+// ✅ Approve Instructor (Instructor approval by admin)
 exports.approveInstructor = async (req, res) => {
   try {
-    const instructor = await Instructor.findById(req.params.id);
-    if (!instructor)
+    const instructor = await User.findById(req.params.id);
+    if (!instructor || instructor.role !== "instructor")
       return res.status(404).json({ message: "Instructor not found" });
 
-    instructor.status = "approved";
+    instructor.status = "approved"; // Set instructor status to approved
     await instructor.save();
 
     res.status(200).json({ message: "Instructor approved successfully" });
@@ -133,13 +137,14 @@ exports.approveInstructor = async (req, res) => {
   }
 };
 
+// ✅ Reject Instructor (Instructor rejection by admin)
 exports.rejectInstructor = async (req, res) => {
   try {
-    const instructor = await Instructor.findById(req.params.id);
-    if (!instructor)
+    const instructor = await User.findById(req.params.id);
+    if (!instructor || instructor.role !== "instructor")
       return res.status(404).json({ message: "Instructor not found" });
 
-    instructor.status = "rejected";
+    instructor.status = "rejected"; // Set instructor status to rejected
     await instructor.save();
 
     res.status(200).json({ message: "Instructor rejected successfully" });
