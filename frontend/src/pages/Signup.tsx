@@ -24,6 +24,8 @@ const Signup = () => {
     email: "",
     password: "",
     role: "student", // Default to student
+    bio: "", // For instructor bio
+    expertise: "", // For instructor expertise (comma separated)
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +54,14 @@ const Signup = () => {
       );
       setTimeout(() => navigate("/login"), 2000);
       setSuccess(response.data.message);
-      setFormData({ name: "", email: "", password: "", role: "student" }); // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        role: "student",
+        bio: "",
+        expertise: "",
+      }); // Reset form
     } catch (err: any) {
       setError(
         err.response?.data?.message || "Signup failed. Please try again."
@@ -119,6 +128,36 @@ const Signup = () => {
               </Select>
             </FormControl>
           </Box>
+
+          {/* Conditionally Render Fields for Instructor Role */}
+          {formData.role === "instructor" && (
+            <>
+              <Box mb={2}>
+                <TextField
+                  fullWidth
+                  label="Instructor Bio"
+                  variant="outlined"
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleChange}
+                  required
+                />
+              </Box>
+              <Box mb={2}>
+                <TextField
+                  fullWidth
+                  label="Expertise (comma separated)"
+                  variant="outlined"
+                  name="expertise"
+                  value={formData.expertise}
+                  onChange={handleChange}
+                  helperText="Enter your areas of expertise, separated by commas."
+                  required
+                />
+              </Box>
+            </>
+          )}
+
           <Button variant="contained" color="primary" fullWidth type="submit">
             Sign Up
           </Button>

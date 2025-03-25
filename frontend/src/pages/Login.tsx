@@ -43,7 +43,16 @@ const Login = () => {
       localStorage.setItem("authToken", response.data.token); // Store the token in local storage
       localStorage.setItem("userRole", response.data.user.role); // Store the role in localStorage
 
-      setTimeout(() => navigate("/dashboard"), 2000); // Redirect to dashboard after successful login
+      // Check the role and navigate to the appropriate dashboard
+      const role = response.data.user.role;
+      if (role === "admin") {
+        navigate("/admin-dashboard"); // Redirect to admin dashboard
+      } else if (role === "instructor") {
+        navigate("/instructor-dashboard"); // Redirect to instructor dashboard
+      } else if (role === "student") {
+        navigate("/dashboard"); // Redirect to student dashboard
+      }
+
       setSuccess(response.data.message);
       setFormData({ email: "", password: "" }); // Reset form after successful login
     } catch (err: any) {
