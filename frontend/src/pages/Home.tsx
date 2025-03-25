@@ -8,12 +8,30 @@ import {
   Card,
   CardContent,
   CardActionArea,
+  TextField,
+  IconButton,
+  Link,
 } from "@mui/material";
 import { useState } from "react";
+import { FaYoutube, FaLinkedin, FaFacebook, FaGithub } from "react-icons/fa";
 
 const Home = () => {
-  // Hover effect for cards
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+
+  const offerings = [
+    {
+      title: "Class I - XII NCERT & Beyond",
+      desc: "Explore expert-guided courses covering NCERT subjects.",
+    },
+    {
+      title: "Mastering APM Tools",
+      desc: "Learn to monitor, optimize, and troubleshoot applications using tools like Dynatrace and AppDynamics.",
+    },
+    {
+      title: "Convert Your Documents",
+      desc: "Easily convert PDFs, Word documents, and other file formats with our powerful tools.",
+    },
+  ];
 
   return (
     <Container maxWidth="lg">
@@ -38,23 +56,37 @@ const Home = () => {
           Your all-in-one learning hub—access courses, study materials,
           textbooks, and essential tools to enhance your learning experience.
         </Typography>
-        <Button
-          variant="contained"
-          color="secondary"
-          size="large"
-          href="/signup"
-          sx={{ mt: 2, px: 4, py: 1.5, fontSize: "1rem", fontWeight: "bold" }}
-        >
-          Get Started
-        </Button>
+        <Box mt={2} display="flex" justifyContent="center" gap={2}>
+          <Button
+            variant="contained"
+            color="secondary"
+            href="/signup"
+            sx={{ px: 4, py: 1.5, fontSize: "1rem", fontWeight: "bold" }}
+          >
+            Get Started
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            href="/learn-more"
+            sx={{ px: 4, py: 1.5, fontSize: "1rem", fontWeight: "bold" }}
+          >
+            Learn More
+          </Button>
+        </Box>
       </Box>
 
       {/* About Me Section */}
-      <Box mt={6} display="flex" alignItems="center" gap={4}>
-        {/* Profile Picture */}
+      <Box
+        mt={6}
+        display="flex"
+        flexDirection={{ xs: "column", sm: "row" }}
+        alignItems="center"
+        gap={4}
+      >
         <Avatar
           alt="Maktumhusen"
-          src="/mypic.jpg" // Ensure this image exists in "public" folder
+          src="/mypic.jpg"
           sx={{
             width: 180,
             height: 180,
@@ -64,9 +96,7 @@ const Home = () => {
             "&:hover": { transform: "scale(1.05)" },
           }}
         />
-
-        {/* Text */}
-        <Box>
+        <Box textAlign={{ xs: "center", sm: "left" }}>
           <Typography variant="h4" fontWeight="bold" gutterBottom>
             About Me
           </Typography>
@@ -81,6 +111,43 @@ const Home = () => {
             this platform offers curated courses, study materials, and practical
             tools to support your journey.
           </Typography>
+          {/* Social Media Icons */}
+          <Box
+            mt={2}
+            display="flex"
+            justifyContent={{ xs: "center", sm: "flex-start" }}
+            gap={2}
+          >
+            {[
+              {
+                icon: <FaYoutube size={30} />,
+                link: "https://www.youtube.com/@LearnwithMaktum",
+              },
+              {
+                icon: <FaLinkedin size={30} />,
+                link: "https://www.linkedin.com/in/maktumhusen/",
+              },
+              {
+                icon: <FaGithub size={30} />,
+                link: "https://github.com/Maktumhusen123",
+              },
+              {
+                icon: <FaFacebook size={30} />,
+                link: "https://www.facebook.com/maktum.paras",
+              },
+            ].map((social, index) => (
+              <IconButton
+                key={index}
+                component={Link}
+                href={social.link}
+                color="primary"
+                target="_blank"
+                aria-label="social-link"
+              >
+                {social.icon}
+              </IconButton>
+            ))}
+          </Box>
         </Box>
       </Box>
 
@@ -90,24 +157,11 @@ const Home = () => {
           What’s in It for You?
         </Typography>
         <Grid container spacing={3} mt={2}>
-          {[
-            {
-              title: "Class I - XII NCERT & Beyond",
-              desc: "Explore expert-guided courses covering NCERT subjects.",
-            },
-            {
-              title: "Mastering APM Tools",
-              desc: "Learn to monitor, optimize, and troubleshoot applications using tools like Dynatrace and AppDynamics.",
-            },
-            {
-              title: "Convert Your Documents",
-              desc: "Easily convert PDFs, Word documents, and other file formats with our powerful tools.",
-            },
-          ].map((item, index) => (
+          {offerings.map((item, index) => (
             <Grid item xs={12} sm={6} md={4} key={index}>
               <Card
                 sx={{
-                  height: "100%", // Ensures equal height for all cards
+                  height: "100%",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
@@ -124,12 +178,7 @@ const Home = () => {
                     <Typography variant="h6" fontWeight="bold">
                       {item.title}
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      mt={1}
-                      sx={{ flexGrow: 1 }}
-                    >
+                    <Typography variant="body2" color="textSecondary" mt={1}>
                       {item.desc}
                     </Typography>
                   </CardContent>
@@ -140,7 +189,7 @@ const Home = () => {
         </Grid>
       </Box>
 
-      {/* Footer */}
+      {/* Footer Section */}
       <Box
         mt={6}
         py={3}
@@ -153,7 +202,37 @@ const Home = () => {
           "&:hover": { boxShadow: 6 },
         }}
       >
-        <Typography variant="body2" color="textSecondary">
+        <Box mt={2}>
+          <Link
+            href="#about"
+            sx={{ mx: 2, color: "#1976d2", textDecoration: "none" }}
+          >
+            About
+          </Link>
+          <Link
+            href="mailto:winmaktum@gmail.com"
+            sx={{ mx: 2, color: "#1976d2", textDecoration: "none" }}
+          >
+            Contact
+          </Link>
+        </Box>
+        <Box mt={3}>
+          <Typography variant="body2" color="textSecondary">
+            Stay updated with our newsletter
+          </Typography>
+          <Box mt={2} display="flex" justifyContent="center">
+            <TextField
+              variant="outlined"
+              label="Enter your email"
+              size="small"
+              sx={{ maxWidth: 300 }}
+            />
+            <Button variant="contained" color="primary" sx={{ ml: 2 }}>
+              Subscribe
+            </Button>
+          </Box>
+        </Box>
+        <Typography mt={2} variant="body2" color="textSecondary">
           © {new Date().getFullYear()} Learn with Maktum. All rights reserved.
         </Typography>
       </Box>
