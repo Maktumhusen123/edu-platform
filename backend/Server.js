@@ -16,7 +16,7 @@ const app = express();
 // ✅ Middleware
 app.use(express.json()); // Parse JSON requests
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded requests
-app.use(cors({ credentials: true, origin: process.env.CLIENT_URL })); // Enable CORS
+app.use(cors()); // Enable CORS
 app.use(morgan("dev")); // Log HTTP requests
 app.use(cookieParser()); // Parse cookies
 

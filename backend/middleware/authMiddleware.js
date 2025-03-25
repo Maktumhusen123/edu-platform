@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const Instructor = require("../models/Instructor");
 
 // ✅ Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
@@ -31,4 +32,20 @@ const authorizeRoles = (...roles) => {
   };
 };
 
-module.exports = { verifyToken, authorizeRoles };
+const isApprovedInstructor = async (req, res, next) => {
+  if (req.user.role !== "instructor") {
+    return res.status(403).json({ message: "Access denied" });
+  }
+
+  // ✅ Fetch instructor from DB
+  const instructor = await Instructor.findById(req.user.id);
+  if (!instructor || instructor.status !== "approved") {
+    return res
+      .status(403)
+      .json({ message: "Access denied. Instructor not approved." });
+  }
+
+  next();
+};
+
+module.exports = { verifyToken, authorizeRoles, isApprovedInstructor };
